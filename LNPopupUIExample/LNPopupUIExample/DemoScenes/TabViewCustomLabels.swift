@@ -11,43 +11,42 @@ import LNPopupUI
 
 struct TabViewCustomLabels : View {
 	@State private var isBarPresented: Bool = true
-	private let onDismiss: () -> Void
 	let demoContent: DemoContent
+	let onDismiss: () -> Void
 	
-	init(demoContent: DemoContent, onDismiss: @escaping () -> Void) {
-		self.onDismiss = onDismiss
-		self.demoContent = demoContent
+	func presentBarHandler() {
+		isBarPresented = true
+	}
+	
+	func hideBarHandler() {
+		isBarPresented = false
 	}
 	
 	var body: some View {
-		TabView{
-			InnerView(tabIdx:0, onDismiss: onDismiss)
+		MaterialTabView {
+			InnerView(tabIdx:0, onDismiss: onDismiss, presentBarHandler: presentBarHandler, hideBarHandler: hideBarHandler)
 				.tabItem {
-					Image(systemName: "star.fill")
-					Text("Tab")
+					Label("Tab", systemImage: "1.square")
 				}
-			InnerView(tabIdx:1, onDismiss: onDismiss)
+			InnerView(tabIdx:1, onDismiss: onDismiss, presentBarHandler: presentBarHandler, hideBarHandler: hideBarHandler)
 				.tabItem {
-					Image(systemName: "star.fill")
-					Text("Tab")
+					Label("Tab", systemImage: "2.square")
 				}
-			InnerView(tabIdx:2, onDismiss: onDismiss)
+			InnerView(tabIdx:2, onDismiss: onDismiss, presentBarHandler: presentBarHandler, hideBarHandler: hideBarHandler)
 				.tabItem {
-					Image(systemName: "star.fill")
-					Text("Tab")
+					Label("Tab", systemImage: "3.square")
 				}
-			InnerView(tabIdx:3, onDismiss: onDismiss)
+			InnerView(tabIdx:3, onDismiss: onDismiss, presentBarHandler: presentBarHandler, hideBarHandler: hideBarHandler)
 				.tabItem {
-					Image(systemName: "star.fill")
-					Text("Tab")
+					Label("Tab", systemImage: "4.square")
 				}
-			InnerView(tabIdx:4, onDismiss: onDismiss)
+			InnerView(tabIdx:4, onDismiss: onDismiss, presentBarHandler: presentBarHandler, hideBarHandler: hideBarHandler)
 				.tabItem {
-					Image(systemName: "star.fill")
-					Text("Tab")
+					Label("Hide Bar", systemImage: "xmark.square")
 				}
+				.toolbar(.hidden, for: .tabBar)
 		}
-		.popupDemo(demoContent: demoContent, isBarPresented: $isBarPresented, includeCustomTextLabels: true)
+		.popupDemo(demoContent: demoContent, isBarPresented: $isBarPresented, includeContextMenu: UserDefaults.settings.bool(forKey: .contextMenuEnabled), includeCustomTextLabels: true)
 	}
 }
 

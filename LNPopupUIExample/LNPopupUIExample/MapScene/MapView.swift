@@ -9,11 +9,11 @@ import SwiftUI
 import MapKit
 
 struct EnlargingButton: View {
-	let label: String
+	let label: LocalizedStringKey
 	let action: (Bool) -> Void
 	@State var pressed: Bool = false
 	
-	init(label: String, perform action: @escaping (Bool) -> Void) {
+	init(label: LocalizedStringKey, perform action: @escaping (Bool) -> Void) {
 		self.label = label
 		self.action = action
 	}
@@ -31,6 +31,24 @@ struct EnlargingButton: View {
 					self.action(pressing)
 				}
 			}, perform: { })
+	}
+}
+
+extension CLLocationCoordinate2D: Equatable {
+	static public func == (lhs: Self, rhs: Self) -> Bool {
+		return lhs.latitude == rhs.latitude && lhs.longitude == rhs.longitude
+	}
+}
+
+extension MKCoordinateSpan: Equatable {
+	static public func == (lhs: Self, rhs: Self) -> Bool {
+		return lhs.longitudeDelta == rhs.longitudeDelta && lhs.latitudeDelta == rhs.latitudeDelta
+	}
+}
+
+extension MKCoordinateRegion: Equatable {
+	public static func == (lhs: MKCoordinateRegion, rhs: MKCoordinateRegion) -> Bool {
+		return lhs.center == rhs.center && lhs.span == rhs.span
 	}
 }
 
@@ -61,11 +79,11 @@ struct CustomBarMapView: View {
 		ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
 			Map(coordinateRegion: $region)
 				.ignoresSafeArea()
-				.animation(.easeInOut)
+				.animation(.easeInOut, value: region)
 			Button(action: {
 				onDismiss()
 			}, label: {
-				Image(systemName: "chevron.left")
+				Image(systemName: "chevron.backward")
 					.renderingMode(.template)
 					.font(.title2)
 			})
@@ -93,6 +111,7 @@ struct CustomBarMapView: View {
 				.padding()
 			}
 		}
+		.font(nil)
 	}
 }
 

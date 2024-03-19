@@ -42,7 +42,7 @@ struct RandomTitlesListView : View {
 	}
 	
 	var body: some View {
-		NavigationView {
+		MaterialNavigationStack {
 			List(songs) { song in
 				Button(action: {
 					onSongSelect(song)
@@ -57,11 +57,12 @@ struct RandomTitlesListView : View {
 							Text(song.title)
 								.font(.headline)
 								.lineLimit(1)
+								.truncationMode(.tail)
 							Text(song.subtitle)
 								.font(.subheadline)
 								.lineLimit(1)
+								.truncationMode(.tail)
 						}
-						.multilineTextAlignment(.leading)
 					}
 				}
 			}
@@ -70,16 +71,19 @@ struct RandomTitlesListView : View {
 			.navigationBarTitleDisplayMode(.inline)
 			.toolbar {
 				ToolbarItem(placement: .navigationBarLeading) {
-					Image(systemName: isPopupPresented ? "rectangle.bottomthird.inset.fill" : "rectangle")
+					Button {
+						isPopupPresented = false
+					} label: {
+						Image(systemName: isPopupPresented ? "rectangle.bottomthird.inset.fill" : "rectangle")
+					}
 				}
-				ToolbarItem(placement: .navigationBarTrailing) {
+				ToolbarItem(placement: .confirmationAction) {
 					Button("Gallery") {
 						onDismiss()
 					}
 				}
 			}
 		}
-		.navigationViewStyle(.stack)
 	}
 }
 
@@ -96,7 +100,7 @@ struct MusicView: View {
 	}
 	
 	var body: some View {
-		TabView {
+		MaterialTabView {
 			RandomTitlesListView("Music", $isPopupBarPresented, onDismiss:onDismiss, onSongSelect: { song in
 				currentSong = song
 			})
@@ -127,18 +131,16 @@ struct MusicView: View {
 			}
 		}
 		.accentColor(.pink)
-		.onChange(of: currentSong, perform: { newValue in
+		.onChange(of: currentSong) { newValue in
 			isPopupBarPresented = newValue != nil
-		})
+		}
 		.popup(isBarPresented: $isPopupBarPresented, isPopupOpen: $isPopupOpen) {
 			if let currentSong = currentSong {
 				PlayerView(song: currentSong)
 			}
 		}
-		//		.popupInteractionStyle(.drag)
-		.popupBarStyle(.prominent)
 		.popupBarProgressViewStyle(.top)
-		.popupBarMarqueeScrollEnabled(true)
+		.font(nil)
 	}
 }
 

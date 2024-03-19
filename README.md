@@ -2,39 +2,37 @@
 
 `LNPopupUI` is a SwiftUI library for presenting views as popups, much like the Apple Music and Podcasts apps.
 
-This is a SwiftUI wrapper of my [LNPopupController framework](https://github.com/LeoNatan/LNPopupController), adapted to work with SwiftUI.
+This is a SwiftUI wrapper of the [LNPopupController framework](https://github.com/LeoNatan/LNPopupController), adapted to work with SwiftUI.
 
 [![GitHub release](https://img.shields.io/github/release/LeoNatan/LNPopupUI.svg)](https://github.com/LeoNatan/LNPopupUI/releases) [![GitHub stars](https://img.shields.io/github/stars/LeoNatan/LNPopupUI.svg)](https://github.com/LeoNatan/LNPopupUI/stargazers) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/LeoNatan/LNPopupUI/master/LICENSE) <span class="badge-paypal"><a href="https://paypal.me/LeoNatan25" title="Donate to this project using PayPal"><img src="https://img.shields.io/badge/paypal-donate-yellow.svg?style=flat" alt="PayPal Donation Button" /></a></span>
 
 [![GitHub issues](https://img.shields.io/github/issues-raw/LeoNatan/LNPopupUI.svg)](https://github.com/LeoNatan/LNPopupUI/issues) [![GitHub contributors](https://img.shields.io/github/contributors/LeoNatan/LNPopupUI.svg)](https://github.com/LeoNatan/LNPopupUI/graphs/contributors) [![Swift Package Manager compatible](https://img.shields.io/badge/swift%20package%20manager-compatible-green)](https://swift.org/package-manager/)
 
-<p align="center"><img src="./Supplements/open_modern_popup.gif" width="360"/></p>
+<p align="center"><img src="./Supplements/open_floating_popup.gif" width="360"/></p>
 
-See a video of the modern popup look & feel [here](https://vimeo.com/194064291) and a video of the classic popup look & feel [here](https://vimeo.com/137020302).
-
-Once a popup bar is presented with a content view, the user can swipe or tap the popup bar at any point to present the content view. After finishing, the user dismisses the popup by either swiping or tapping the popup close button.
+Once a popup bar is presented with a content view, the user can swipe or tap the popup bar at any point to present the content view. After finishing, the user dismisses the popup by either swiping the content view or tapping the popup close button.
 
 The library extends SwiftUI’s `View` with new functionality for presenting and customizing popups with content views, as well as setting information such as the popup bar’s title, image and bar button items. When a popup bar is presented, the popup bar automatically adapts to the view it was presented on for best appearance.
 
-Generally, it is recommended to present the popup bar on the outermost view, such as `TabView` or `NavigationView`. For example, if you have a view contained in a navigation view, which is in turn contained in a tab view, it is recommended to present the popup on the tab view.
+Generally, it is recommended to present the popup bar on the outermost view, such as `TabView` or `NavigationStack`. For example, if you have a view contained in a navigation stack, which is in turn contained in a tab view, it is recommended to present the popup bar on the tab view.
 
 Check the demo project for a quick recreation of Apple’s music app.
 
 ### Features
 
-* Available for iOS 13 and above, as a SPM package for SwiftUI
-* A SwiftUI library, wrapping my [LNPopupController framework](https://github.com/LeoNatan/LNPopupController); the library works internally with SwiftUI’s generated UIKit content to present the framework in a native manner
+* Available for iOS 14 and above, as a SPM package for SwiftUI
+* A SwiftUI library, wrapping the [LNPopupController framework](https://github.com/LeoNatan/LNPopupController); the library works internally with SwiftUI’s generated UIKit content to present the framework in a native manner
 
 ## Adding to Your Project
 
 ### Swift Package Manager
 
-`LNPopupUI` supports SPM versions 5.1.0 (Xcode 11) and above. In Xcode, click `File` -> `Swift Packages` -> `Add Package Dependency`, enter `https://github.com/LeoNatan/LNPopupUI`. Select the version you’d like to use.
+`LNPopupUI` supports SPM versions 5.5 (Xcode 13) and above. In Xcode, click `File` -> `Swift Packages` -> `Add Package Dependency`, enter `https://github.com/LeoNatan/LNPopupUI`. Select the version you’d like to use.
 
 You can also manually add the package to your Package.swift file:
 
 ```swift
-.package(url: "https://github.com/LeoNatan/LNPopupUI.git", from: "1.0.0")
+.package(url: "https://github.com/LeoNatan/LNPopupUI.git", from: "1.5.0")
 ```
 
 And the dependency in your target:
@@ -55,9 +53,9 @@ import LNPopupUI
 
 ### Popups
 
-Popup consist of a popup bar and a popup content view. Information for the popup bar, such as the title, image and bar button items, is received by using the provided modifier API.
+Popups consist of a popup bar and a popup content view. Information for the popup bar, such as the title, image and bar button items, is configured using the provided modifier APIs.
 
-To present the popup, call the `popup(isBarPresented:isPopupOpen:content)` method:
+To present the popup, call the `popup(isBarPresented:isPopupOpen:content:)` method:
 
 ```swift
 TabView {
@@ -68,7 +66,7 @@ TabView {
 }
 ```
 
-<p align="center"><img src="./Supplements/modern_no_scroll.gif" width="360"/></p>
+<p align="center"><img src="./Supplements/floating_no_scroll.gif" width="360"/></p>
 
 To present and dismiss the popup bar programmatically, toggle the `isPopupBarPresented` bound var. To open or close the popup programmatically, toggle the `isPopupOpen` bound var.
 
@@ -76,7 +74,7 @@ For more information, see the documentation in [LNPopupUI.swift](https://github.
 
 ### Popup Bar Content
 
-Popup bar content is provided as modifiers of the popup content view.
+Popup bar content is configured using modifiers of the popup content view.
 
 ```swift
 VStack {
@@ -102,20 +100,35 @@ VStack {
 
 ### Appearance and Behavior
 
-`LNPopupUI` provides two distinct styles of popup look and feel, one based on modern Music app look and feel, and one based on the previous, iOS 9-style look and feel. Popup bar styles are arbitrarily labeled "prominent" for modern style popup bar and "compact" for iOS 9-style. Popup interaction styles are labeled "snap" for modern style snapping popups and "drag" for iOS 9 interactive popup interaction. Popup close buttons styles are labeled "chevron" for modern style chevron close button and "round" for iOS 9-style close buttons. For each, there is a "default" style for choosing the most suitable one for the current platform and operating system version.
+`LNPopupUI` provides three distinct styles of popup look and feel, each based on Music app looks and feels, that Apple has introduced over the years. Popup bar styles are labeled "floating”, “prominent" and "compact", matching the appropriate Apple style. Popup interaction styles are labeled "snap" for modern style snapping popups and "drag" for iOS 9 interactive popup interaction. Popup close buttons styles are labeled "chevron" for modern style chevron close button and "round" for iOS 9-style close buttons. For each, there is a "default" style for choosing the most suitable one for the current platform and operating system version.
 
 The defaults are:
 
-* Prominent bar style
-* Snap interaction style
-* Chevron close button style
-* No progress view style
+- iOS 17:
+
+  * Floating bar style
+
+  * Snap interaction style
+
+  * Chevron close button style
+
+  * No progress view style
+
+- iOS 16 and below:
+
+  - Prominent bar style
+
+  * Snap interaction style
+
+  * Chevron close button style
+
+  * No progress view style
 
 You can also present completely custom popup bars. For more information, see [Custom Popup Bar View](#custom-popup-bar-view).
 
 By default, for navigation and tab views, the appearance of the popup bar is determined according to the container’s bottom bar's appearance. For other container views, a default appearance is used, most suitable for the current environment.
 
-<p align="center"><img src="./Supplements/modern_bar_style.gif" width="360"/></p>
+<p align="center"><img src="./Supplements/floating_bar_style.gif" width="360"/></p>
 
 To disable inheriting the bottom bar’s appearance, call the `popupBarInheritsAppearanceFromDockingView()` modifier with `false`.
 
@@ -130,7 +143,7 @@ Customizing the popup bar style is achieved by calling the `.popupBarStyle()` mo
 .popupBarStyle(.compact)
 ```
 
-<p align="center"><img src="./Supplements/modern_no_scroll.gif" width="360"/> <img src="./Supplements/scroll.gif" width="360"/></p>
+<p align="center"><img src="./Supplements/floating_no_scroll.gif" width="360"/> <img src="./Supplements/modern_no_scroll.gif" width="360"/> <img src="./Supplements/scroll.gif" width="360"/></p>
 
 #### Interaction Style
 
@@ -198,6 +211,11 @@ The `wantsDefaultTapGesture`, `wantsDefaultPanGesture` and `wantsDefaultHighligh
 
 <p align="center"><img src="./Supplements/custom_bar.png" width="360"/></p>
 
+The included demo project includes an example custom popup bar scene.
+
+> [!TIP]
+> Only implement a custom popup bar view if you need a design that is significantly different than the provided [standard popup bar styles](#bar-style). A lot of care and effort has been put into integrating these popup bar styles with the SwiftUI system, including look, feel, transitions and interactions. Custom bars provide a blank canvas for you to implement a bar view of your own, but if you end up recreating a bar design that is similar to a standard bar style, you are more than likely losing subtleties that have been added and perfected over the years in the standard implementations. Instead, consider using the many customization APIs to tweak the standard bar styles to fit your app’s design.
+
 #### Context Menus
 
 You can add a context menu to your popup bar by calling the `.popupBarContextMenu()` modifier.
@@ -255,7 +273,7 @@ For iPhone 13 Pro and above, you need to add the `CADisableMinimumFrameDurationO
 }
 ```
 
-<p align="center"><img src="./Supplements/modern_custom.png" width="360"/> <img src="./Supplements/custom1.png" width="360"/></p>
+<p align="center"><img src="./Supplements/floating_custom.png" width="360"/> <img src="./Supplements/modern_custom.png" width="360"/> <img src="./Supplements/custom1.png" width="360"/></p>
 
 #### Full Right-to-Left Support
 

@@ -20,6 +20,10 @@ struct NavDemoView : View {
 		isBarPresented = true
 	}
 	
+	func hideBarHandler() {
+		isBarPresented = false
+	}
+	
 	func appearanceHandler() {
 		if let forcedColorScheme = forcedColorScheme {
 			self.forcedColorScheme = forcedColorScheme == .dark ? .light : .dark
@@ -28,23 +32,21 @@ struct NavDemoView : View {
 		}
 	}
 	
-	func hideBarHandler() {
-		isBarPresented = false
-	}
-	
 	var body: some View {
-		NavigationView {
-			SafeAreaDemoView(includeLink: true, presentBarHandler: presentBarHandler, appearanceHandler: appearanceHandler, hideBarHandler: hideBarHandler, showDismissButton: false, onDismiss: onDismiss)
+		MaterialNavigationStack {
+			SafeAreaDemoView(colorSeed:"tab_109", includeToolbar: true, includeLink: true, presentBarHandler: presentBarHandler, appearanceHandler: appearanceHandler, hideBarHandler: hideBarHandler, showDismissButton: false, onDismiss: onDismiss)
 				.navigationBarTitle("Navigation View")
 				.navigationBarTitleDisplayMode(.inline)
-				.demoToolbar(presentBarHandler: presentBarHandler, appearanceHandler: appearanceHandler, hideBarHandler: hideBarHandler)
-				.navigationBarItems(trailing: Button("Gallery") {
-					onDismiss()
-				})
+				.toolbar {
+					ToolbarItem(placement: .confirmationAction) {
+						Button("Gallery") {
+							onDismiss()
+						}
+					}
+				}
 		}
 		.colorScheme(forcedColorScheme ?? environmentColorScheme)
-		.navigationViewStyle(.stack)
-		.popupDemo(demoContent: demoContent, isBarPresented: $isBarPresented)
+		.popupDemo(demoContent: demoContent, isBarPresented: $isBarPresented, includeContextMenu: UserDefaults.settings.bool(forKey: .contextMenuEnabled))
 	}
 }
 

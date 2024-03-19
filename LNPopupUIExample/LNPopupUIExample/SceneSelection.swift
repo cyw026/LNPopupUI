@@ -9,111 +9,181 @@ import SwiftUI
 import LNPopupUI
 import ActivityView
 
+fileprivate struct CellPaddedButton: View {
+	let text: LocalizedStringKey
+	let action: () -> Void
+	
+	public init(_ content: LocalizedStringKey, action: @escaping () -> Void) {
+		text = content
+		self.action = action
+	}
+	
+	var body: some View {
+		Button(text, action: action)
+//			.padding([.top, .bottom], 4.167)
+			.tint(Color(.label))
+	}
+}
+
 struct SceneSelection: View {
+	@Environment(\.horizontalSizeClass) var horizontalSizeClass
+	@Environment(\.verticalSizeClass) var verticalSizeClass
+	
 	@State var tabnavPresented: Bool = false
 	@State var tabPresented: Bool = false
 	@State var tabCustomPresented: Bool = false
 	@State var navPresented: Bool = false
 	@State var viewPresented: Bool = false
 	@State var viewSheetPresented: Bool = false
+	@State var compactSliderSheetPresented: Bool = false
 	@State var musicSheetPresented: Bool = false
 	@State var mapSheetPresented: Bool = false
+	@State var splitViewPresented: Bool = false
+	@State var splitViewGlobalPresented: Bool = false
 	
 	@State var settingsPresented: Bool = false
 	@State private var item: ActivityItem? = nil
 	
+	@AppStorage(.enableFunkyInheritedFont, store: .settings) var enableFunkyInheritedFont: Bool = false
+	@AppStorage(.enableExternalScenes, store: .settings) var enableExternalScenes: Bool = false
+	
+	let font = Font.custom("Chalkduster", size: 15)
+//	let font = Font.custom("Avenir Next", fixedSize: 15).weight(.heavy).italic()
+//	let font = Font.custom("Zapfino", size: 15).italic().weight(.heavy).width(.condensed)
+//	let font = Font.system(size: 15, weight: .regular)
+//	let font = Font.system(size: 15, weight: .regular).monospacedDigit()
+//	let font = Font.system(size: 15, weight: .black).monospaced().lowercaseSmallCaps()
+	
 	var body: some View {
-		NavigationView {
+		MaterialNavigationStack {
 			List {
-				Section(header: Text("Standard Scenes (Chevron + Snap)")) {
-					Button("Tab View + Navigation View") {
+				Section {
+					CellPaddedButton("Tab View + Navigation View") {
 						tabnavPresented.toggle()
 					}
-					.foregroundColor(Color(.label))
 					.fullScreenCover(isPresented: $tabnavPresented, content: {
 						TabNavView(demoContent: DemoContent()) {
 							tabnavPresented.toggle()
 						}
 					})
-					Button("Tab View") {
+					CellPaddedButton("Tab View") {
 						tabPresented.toggle()
 					}
-					.foregroundColor(Color(.label))
 					.fullScreenCover(isPresented: $tabPresented, content: {
 						TabDemoView(demoContent: DemoContent()) {
 							tabPresented.toggle()
 						}
 					})
-					Button("Tab View (Custom Labels)") {
+					CellPaddedButton("Tab View (Custom Labels)") {
 						tabCustomPresented.toggle()
 					}
-					.foregroundColor(Color(.label))
 					.fullScreenCover(isPresented: $tabCustomPresented, content: {
 						TabViewCustomLabels(demoContent: DemoContent()) {
 							tabCustomPresented.toggle()
 						}
 					})
-					Button("Navigation View") {
+					CellPaddedButton("Navigation View") {
 						navPresented.toggle()
 					}
-					.foregroundColor(Color(.label))
 					.fullScreenCover(isPresented: $navPresented, content: {
 						NavDemoView(demoContent: DemoContent()) {
 							navPresented.toggle()
 						}
 					})
-					Button("Navigation View (Sheet)") {
+					CellPaddedButton("Navigation View (Sheet)") {
 						viewSheetPresented.toggle()
 					}
-					.foregroundColor(Color(.label))
 					.sheet(isPresented: $viewSheetPresented, content: {
 						NavDemoView(demoContent: DemoContent()) {
 							viewSheetPresented.toggle()
 						}
 					})
-					Button("View") {
+					CellPaddedButton("View") {
 						viewPresented.toggle()
 					}
-					.foregroundColor(Color(.label))
 					.fullScreenCover(isPresented: $viewPresented, content: {
 						ViewDemoView(demoContent: DemoContent()) {
 							viewPresented.toggle()
 						}
 					})
-					Button("View + Context Menu Interaction") {
-						viewPresented.toggle()
-					}
-					.foregroundColor(Color(.label))
-					.fullScreenCover(isPresented: $viewPresented, content: {
-						ViewDemoView(demoContent: DemoContent(), contextMenu: true) {
-							viewPresented.toggle()
+					if #available(iOS 17, *) {
+						Group {
+							CellPaddedButton("Split View (All)") {
+								splitViewPresented.toggle()
+							}.fullScreenCover(isPresented: $splitViewPresented) {
+								SplitDemoView(isGlobal: false) {
+									splitViewPresented.toggle()
+								}
+							}
+							CellPaddedButton("Split View (Global)") {
+								splitViewGlobalPresented.toggle()
+							}
+							.fullScreenCover(isPresented: $splitViewGlobalPresented) {
+								SplitDemoView(isGlobal: true) {
+									splitViewGlobalPresented.toggle()
+								}
+							}
 						}
-					})
+						.disabled(horizontalSizeClass == .compact)
+						.onChange(of: horizontalSizeClass) { newValue in
+							if newValue == .compact {
+								splitViewPresented = false
+								splitViewGlobalPresented = false
+							}
+						}
+					}
+				} header: {
+					Text("Standard Scenes")
+				} footer: {
+					Text("Presents a standard test scene with a popup bar.")
 				}
-				Section(header: Text("Demo App")) {
-					Button("Apple Music") {
+				Section {
+					CellPaddedButton("Music") {
 						musicSheetPresented.toggle()
 					}
-					.foregroundColor(Color(.label))
 					.fullScreenCover(isPresented: $musicSheetPresented, content: {
 						MusicView {
 							musicSheetPresented.toggle()
 						}
 					})
+				} header: {
+					Text("Demo Apps")
+				} footer: {
+					Text("Presents a rudimentary recreation of a music app.")
 				}
-				Section(header: Text("Custom Popup Bar")) {
-					Button("Custom Popup Bar + UIKit Popup Content Controller") {
+				Section {
+					CellPaddedButton("Maps") {
 						mapSheetPresented.toggle()
 					}
-					.foregroundColor(Color(.label))
 					.fullScreenCover(isPresented: $mapSheetPresented, content: {
 						CustomBarMapView {
 							mapSheetPresented.toggle()
 						}
 					})
+				} header: {
+					Text("Custom Popup Bar")
+				} footer: {
+					Text("Presents a scene with a custom popup bar view and a UIKit popup content controller")
+				}
+				
+				if enableExternalScenes {
+					Section {
+						CellPaddedButton("CompactSlider") {
+							compactSliderSheetPresented.toggle()
+						}
+						.fullScreenCover(isPresented: $compactSliderSheetPresented, content: {
+							CompactSliderDemoView {
+								compactSliderSheetPresented.toggle()
+							}
+						})
+					} header: {
+						Text("External Libraries—Gestures")
+					} footer: {
+						Text("Presents a popup content view with [CompactSlider](https://github.com/buh/CompactSlider) elements, to test gesture handling in the library.")
+					}
 				}
 			}
-			.listStyle(GroupedListStyle())
+			.listStyle(InsetGroupedListStyle())
 			.navigationBarTitle("LNPopupUI")
 			.toolbar {
 				ToolbarItem(placement: .navigationBarTrailing) {
@@ -122,15 +192,18 @@ struct SceneSelection: View {
 					} label: {
 						Image("gears")
 					}
+					.popover(isPresented: $settingsPresented, content: {
+						SettingsNavView()
+							.frame(minWidth: verticalSizeClass == .regular && horizontalSizeClass == .regular ? 375 : nil, minHeight: verticalSizeClass == .regular && horizontalSizeClass == .regular ? 600 : nil)
+					})
 				}
 			}
 			.navigationBarTitleDisplayMode(.inline)
 		}
-		.navigationViewStyle(.stack)
-		.ignoresSafeArea()
 		.popup(isBarPresented: Binding.constant(true), popupContent: {
 			PopupDemoWebView()
 		})
+		.popupBarStyle(.floating)
 		.popupBarContextMenu {
 			Link(destination: URL(string: "https://github.com/LeoNatan/LNPopupUI")!) {
 				Text("Visit GitHub Page")
@@ -149,12 +222,10 @@ struct SceneSelection: View {
 				Text("Share…")
 				Image(systemName: "square.and.arrow.up")
 			}
-
-		}
-		.sheet(isPresented: $settingsPresented) {
-			SettingsView()
+			
 		}
 		.activitySheet($item)
+		.font(enableFunkyInheritedFont ? font : nil)
 	}
 }
 
